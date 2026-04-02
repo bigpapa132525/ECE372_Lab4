@@ -1,21 +1,20 @@
-// Author:         
-// Net ID:         
-// Date:           
-// Assignment:     Lab 3
-//----------------------------------------------------------------------//
-
 #ifndef TIMER_H
 #define TIMER_H
 
 #include <avr/io.h>
 
-void initTimer1();
-void delayUs(unsigned int delay);
-void initTimer0();
-void delayMs(unsigned int delay); 
+/* Timer 0 */
+void initTimer0(void);
+void delayMs(unsigned int delay);
+void delay_3ms(void);
 
-// led delays
-void Timer_100ms(int time_base);
-void delay_3ms();
+/* Timer 1 */
+void initTimer1(void);
+void delayUs(unsigned int delay);
+void delaySeconds(unsigned int seconds);
+
+/* Timer 3 PWM */
+void initTimer3(void);
+void setMotorSpeed(unsigned int dutyCycle);
 
 #endif
