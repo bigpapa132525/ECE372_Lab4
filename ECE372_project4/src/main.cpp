@@ -85,81 +85,95 @@ int main(){
   //  moveCursor(1, 5);  // moves the cursor to 5,1 position
 
   moveCursor(1,9);// zero and zero first location
+  /* -------- testing -----------*/
+  // Serial.begin(9600);
+
+  /* ------------ NEW VARIALBES FOR THIS LAB4 HERE ------------*/
+    unsigned int result = 0;
+    float voltage = 0;
 
 // while loop
   while(1){
-// State machine
-switch (Current_state)
-{
-case Wait_Press:
-  break;
-case Debounce_Press:
-  delay_3ms();
-    counter = 0;
-    Current_state = Change_Mode;
-  
-  break;
-  case Change_Mode:
-    if (!(PINB & (1<<PINB3)))
-    {
-      if(fast){
-        fast = 0;
-      } 
-      else fast = 1;
-// lcd display change
-      if(fast){
-        moveCursor(0,0);
-        writeString("BR = 100 ms ");
-        moveCursor(1,0);
-        writeString("Fast ");
-      }
-      else{
-        moveCursor(0,0);
-        writeString("BR = 200 ms ");
-        moveCursor(1,0);
-        writeString("Slow ");
-      }
+    //print out ADC value
+    // read in ADCL first then ADCH
+    result = ADCL;
+    result += ((unsigned int) ADCH) << 8;
+    voltage = result * (4.586/1024.0);
+    // Serial.println(voltage);
 
-
-    }
-    Current_state = Wait_Release;
-  break;
-case Wait_Release:
-    if ((PINB & (1<<PINB3)))
-      Current_state = Debounce_Release;
-    
-break;
-
-case Debounce_Release:
-    delay_3ms();  
-    Current_state = Wait_Press;
-  break;
-default:
-  break;
-}
-               // timer length //
-// ------------------------------------------ //
-if (fast)
-{
-  time_base = 10;
-// This is 10x10 = 100 ms
-}
-else {
-  time_base = 20;
-//This is 20x10 = 200 ms
-}
-// ------------------   timer   -------------------------- //
-    Timer_100ms(time_base);
-    turnOnLEDWithChar(number);
-    if(number==15){
-    number = 0;
-    }
-    else {
-    number++;
-    }
 }
   return 0;
 }
+// original while loop:
+// State machine
+// switch (Current_state)
+// {
+// case Wait_Press:
+//   break;
+// case Debounce_Press:
+//   delay_3ms();
+//     counter = 0;
+//     Current_state = Change_Mode;
+  
+//   break;
+//   case Change_Mode:
+//     if (!(PINB & (1<<PINB3)))
+//     {
+//       if(fast){
+//         fast = 0;
+//       } 
+//       else fast = 1;
+// // lcd display change
+//       if(fast){
+//         moveCursor(0,0);
+//         writeString("BR = 100 ms ");
+//         moveCursor(1,0);
+//         writeString("Fast ");
+//       }
+//       else{
+//         moveCursor(0,0);
+//         writeString("BR = 200 ms ");
+//         moveCursor(1,0);
+//         writeString("Slow ");
+//       }
+
+
+//     }
+//     Current_state = Wait_Release;
+//   break;
+// case Wait_Release:
+//     if ((PINB & (1<<PINB3)))
+//       Current_state = Debounce_Release;
+    
+// break;
+
+// case Debounce_Release:
+//     delay_3ms();  
+//     Current_state = Wait_Press;
+//   break;
+// default:
+//   break;
+// }
+//                // timer length //
+// // ------------------------------------------ //
+// if (fast)
+// {
+//   time_base = 10;
+// // This is 10x10 = 100 ms
+// }
+// else {
+//   time_base = 20;
+// //This is 20x10 = 200 ms
+// }
+// // ------------------   timer   -------------------------- //
+//     Timer_100ms(time_base);
+//     turnOnLEDWithChar(number);
+//     if(number==15){
+//     number = 0;
+//     }
+//     else {
+//     number++;
+//     }
 
 /* Implement an Pin Change Interrupt which handles the switch being
 * pressed and released. When the switch is pressed and released, the LEDs
