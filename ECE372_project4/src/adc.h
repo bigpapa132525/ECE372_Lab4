@@ -9,6 +9,6 @@
 
 #include <avr/io.h>
 
-void initACD();
+void initADC();
 
 #endif

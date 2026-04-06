@@ -19,6 +19,8 @@
 #include "switch.h"
 #include "timer.h"
 #include "lcd.h"
+#include "pwm.h"
+#include "adc.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
@@ -65,9 +67,12 @@ int main(){
 // ---- initiallizing ---- //
   initTimer1();
   initTimer0();
+  initPWMTimer3();
+  initPWMTimer4();
   switch_init();
-  //initLED();
+  initADC();
   initSevSeg();
+  initMotorDirectionPins();
   sei(); // Enable global interrupts.
 
   /* -------- testing -----------*/
@@ -77,12 +82,14 @@ int main(){
     unsigned int result = 0;
     float voltage = 0;
     int go = 0;
+    unsigned int adcValue;
 
 // while loop
   while(1){
     if(go == 1){
     go = 0;
     cli();
+    stopMotor();
     for(int i = 9; i >= 0; i--){
       numOut(i);
       delayMs(1000);
@@ -90,13 +97,25 @@ int main(){
     sei();
   }
     numOut(10);
-    //print out ADC value
-    // read in ADCL first then ADCH
-    result = ADCL;
-    result += ((unsigned int) ADCH) << 8;
-    voltage = result * (4.586/1024.0);
+    adcValue = ADC;
+    changeDutyCycle(adcValue);
+        if (adcValue > 524)
+        {
+            setMotorClockwise();
+            OCR3A = ((adcValue - 524) * 1023UL) / (1023 - 524);
+        }
+        else if (adcValue < 500)
+        {
+            setMotorCounterClockwise();
+            OCR3A = ((500 - adcValue) * 1023UL) / 500;
+        }
+        else
+        {
+            stopMotor();
+            OCR3A = 0;
+        }
     
-    // Serial.println(voltage);
+   
     switch(state){
           //wait for the press
           case wait_press:
