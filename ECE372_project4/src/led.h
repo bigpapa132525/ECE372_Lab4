@@ -7,5 +7,7 @@
 
 void initLED();
 void turnOnLEDWithChar(unsigned char num);
+void initSevSeg();
+void numOut(char num);
 
 #endif

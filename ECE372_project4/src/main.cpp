@@ -66,25 +66,14 @@ volatile state Current_state = Wait_Press;
 int main(){
 
 // ---- initiallizing ---- //
-  initTimer1();
-  initTimer0();
-  initLCD();
-  switch_init();
-  initLED();
+  //initTimer1();
+  //initTimer0();
+  //switch_init();
+  //initLED();
+  initSevSeg();
+  PORTC = 0x00;
   sei(); // Enable global interrupts.
 
-  moveCursor(0, 0); // moves the cursor to 0,0 position
-  writeString("BR= 100 ms");
-  moveCursor(1, 0);  // moves the cursor to 1,0 position
-  writeString("Fast");
-  // moveCursor(0, 0); // moves the cursor to 0,0 position
-  // writeString("This is a TEST"); //write top line of LCD
-  // moveCursor(1, 2);  // moves the cursor to 1,2 position
-  // // writing a special character from the datasheet table
-  //  writeCharacter(0xF4); // write a theta 
-  //  moveCursor(1, 5);  // moves the cursor to 5,1 position
-
-  moveCursor(1,9);// zero and zero first location
   /* -------- testing -----------*/
   // Serial.begin(9600);
 
@@ -93,12 +82,14 @@ int main(){
     float voltage = 0;
 
 // while loop
+numOut(2);
   while(1){
     //print out ADC value
     // read in ADCL first then ADCH
     result = ADCL;
     result += ((unsigned int) ADCH) << 8;
     voltage = result * (4.586/1024.0);
+    
     // Serial.println(voltage);
 
 }
