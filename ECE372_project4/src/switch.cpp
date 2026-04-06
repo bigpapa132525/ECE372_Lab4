@@ -4,10 +4,11 @@
 
 #include<avr/io.h>
 void switch_init(){
-//PB5
-DDRB&=~(1<<DDB3); //INPUT
-PORTB|=(1<<PORTB3);
-//ENABLE INTERRUPTS
-PCICR|=(1<<PCIE0);// TURN ON THE VECTOR PCINT0_VECT
-PCMSK0|=(1<<PCINT3); // turn on only pCINT5 
+    DDRD &= ~(1 << DDD0);     // PD0 input
+    PORTD |= (1 << PORTD0);   // enable pull-up resistor
+
+    EICRA |= (1 << ISC00);    // any logical change on INT0
+    EICRA &= ~(1 << ISC01);
+
+    EIMSK |= (1 << INT0);     // enable external interrupt INT0
 }

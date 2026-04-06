@@ -52,26 +52,22 @@ volatile int bttnPress = 0;
 
 int wait = 0;
 
-typedef enum state_table{
-  Wait_Press,
-  Debounce_Press,
-  Change_Mode,
-  Wait_Release,
-  Debounce_Release,
-}state;
+typedef enum stateType_enum {
+wait_press, debounce_press,
+wait_release, debounce_release
+} stateType;
 
-volatile state Current_state = Wait_Press;
+volatile stateType state = wait_press;
 
 
 int main(){
 
 // ---- initiallizing ---- //
-  //initTimer1();
-  //initTimer0();
-  //switch_init();
+  initTimer1();
+  initTimer0();
+  switch_init();
   //initLED();
   initSevSeg();
-  PORTC = 0x00;
   sei(); // Enable global interrupts.
 
   /* -------- testing -----------*/
@@ -80,10 +76,20 @@ int main(){
   /* ------------ NEW VARIALBES FOR THIS LAB4 HERE ------------*/
     unsigned int result = 0;
     float voltage = 0;
+    int go = 0;
 
 // while loop
-numOut(2);
   while(1){
+    if(go == 1){
+    go = 0;
+    cli();
+    for(int i = 9; i >= 0; i--){
+      numOut(i);
+      delayMs(1000);
+    }
+    sei();
+  }
+    numOut(10);
     //print out ADC value
     // read in ADCL first then ADCH
     result = ADCL;
@@ -91,10 +97,35 @@ numOut(2);
     voltage = result * (4.586/1024.0);
     
     // Serial.println(voltage);
+    switch(state){
+          //wait for the press
+          case wait_press:
+            break;
+          //wait 20 ms for the signal to stabalize before accepting new state
+          case debounce_press:
+            delayMs(20);
+            state = wait_release;
+            break;
+          //wait for the button release
+          case wait_release:
+            break;
+          
+          //state that sets the timer to 200 if the timer was at 100
+          case debounce_release:
+            
+            delayMs(20);
+            go = 1;
+            state = wait_press;
+            break;
 
-}
+          //state that sets the timer to 100 if the timer was at 200
+        }
+        //delay between the lights counting up
+       
+      }
   return 0;
 }
+
 // original while loop:
 // State machine
 // switch (Current_state)
@@ -171,9 +202,11 @@ numOut(2);
 * change at twice the original rate. If the LEDs are already changing at twice
 * the original rate, it goes back to the original rate.
 */
-ISR(PCINT0_vect){
-  if (Current_state == Wait_Press) {
-          Current_state = Debounce_Press;
-          counter = 0;
-      }
+ISR(INT0_vect){
+    if(state == wait_press){
+        state = debounce_press;
+    }
+    else if(state == wait_release){
+        state = debounce_release;
+    }
 }
