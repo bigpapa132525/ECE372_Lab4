@@ -23,6 +23,7 @@
 #include "adc.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include "Arduino.h"
 
 // defines
 
@@ -68,7 +69,6 @@ int main(){
   initTimer1();
   initTimer0();
   initPWMTimer3();
-  initPWMTimer4();
   switch_init();
   initADC();
   initSevSeg();
@@ -79,13 +79,12 @@ int main(){
   // Serial.begin(9600);
 
   /* ------------ NEW VARIALBES FOR THIS LAB4 HERE ------------*/
-    unsigned int result = 0;
-    float voltage = 0;
     int go = 0;
     unsigned int adcValue;
 
 // while loop
   while(1){
+    /* --------------- Check State: Button press ---------------- */
     if(go == 1){
     go = 0;
     cli();
@@ -98,24 +97,9 @@ int main(){
   }
     numOut(10);
     adcValue = ADC;
+/* --------------------------- Motor Control ------------------------------ */    
     changeDutyCycle(adcValue);
-        if (adcValue > 524)
-        {
-            setMotorClockwise();
-            OCR3A = ((adcValue - 524) * 1023UL) / (1023 - 524);
-        }
-        else if (adcValue < 500)
-        {
-            setMotorCounterClockwise();
-            OCR3A = ((500 - adcValue) * 1023UL) / 500;
-        }
-        else
-        {
-            stopMotor();
-            OCR3A = 0;
-        }
-    
-   
+/* ------------------------------------- State Machine ---------------------------------- */   
     switch(state){
           //wait for the press
           case wait_press:
@@ -145,82 +129,7 @@ int main(){
   return 0;
 }
 
-// original while loop:
-// State machine
-// switch (Current_state)
-// {
-// case Wait_Press:
-//   break;
-// case Debounce_Press:
-//   delay_3ms();
-//     counter = 0;
-//     Current_state = Change_Mode;
-  
-//   break;
-//   case Change_Mode:
-//     if (!(PINB & (1<<PINB3)))
-//     {
-//       if(fast){
-//         fast = 0;
-//       } 
-//       else fast = 1;
-// // lcd display change
-//       if(fast){
-//         moveCursor(0,0);
-//         writeString("BR = 100 ms ");
-//         moveCursor(1,0);
-//         writeString("Fast ");
-//       }
-//       else{
-//         moveCursor(0,0);
-//         writeString("BR = 200 ms ");
-//         moveCursor(1,0);
-//         writeString("Slow ");
-//       }
 
-
-//     }
-//     Current_state = Wait_Release;
-//   break;
-// case Wait_Release:
-//     if ((PINB & (1<<PINB3)))
-//       Current_state = Debounce_Release;
-    
-// break;
-
-// case Debounce_Release:
-//     delay_3ms();  
-//     Current_state = Wait_Press;
-//   break;
-// default:
-//   break;
-// }
-//                // timer length //
-// // ------------------------------------------ //
-// if (fast)
-// {
-//   time_base = 10;
-// // This is 10x10 = 100 ms
-// }
-// else {
-//   time_base = 20;
-// //This is 20x10 = 200 ms
-// }
-// // ------------------   timer   -------------------------- //
-//     Timer_100ms(time_base);
-//     turnOnLEDWithChar(number);
-//     if(number==15){
-//     number = 0;
-//     }
-//     else {
-//     number++;
-//     }
-
-/* Implement an Pin Change Interrupt which handles the switch being
-* pressed and released. When the switch is pressed and released, the LEDs
-* change at twice the original rate. If the LEDs are already changing at twice
-* the original rate, it goes back to the original rate.
-*/
 ISR(INT0_vect){
     if(state == wait_press){
         state = debounce_press;

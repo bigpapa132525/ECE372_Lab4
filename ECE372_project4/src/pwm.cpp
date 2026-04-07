@@ -23,41 +23,47 @@ void initPWMTimer3()
 
 
 
-
-void initMotorDirectionPins(void)
-{
-    DDRB |= (1 << DDB2) | (1 << DDB3);  // outputs
-}
-
-void setMotorClockwise(void)
-{
-    PORTB |= (1 << PORTB2);
-    PORTB &= ~(1 << PORTB3);
-}
-
-void setMotorCounterClockwise(void)
-{
-    PORTB &= ~(1 << PORTB2);
-    PORTB |= (1 << PORTB3);
-}
-
-void stopMotor(void)
-{
-    PORTB &= ~(1 << PORTB2);
-    PORTB &= ~(1 << PORTB3);
-}
-
-void changeDutyCylce(int adcVal){
-  if(adcVal > 950){
-    OCR3B=950;
-    OCR3C=950;
+/* ------------------- Direction of Motor ------------------ */
+// init pins 50, 51 (PB2 & PB3)
+  void initMotorDirectionPins(void)
+  {
+      DDRB |= (1 << DDB2) | (1 << DDB3);  // outputs
   }
-  else if (adcVal<100){
-    OCR3B=100;
-    OCR3C=100;
+
+  void setMotorClockwise(void)
+  {
+      PORTB |= (1 << PORTB2);
+      PORTB &= ~(1 << PORTB3);
   }
-  else{
-    OCR3B=adcVal;
-    OCR3C=adcVal;
+
+  void setMotorCounterClockwise(void)
+  {
+      PORTB &= ~(1 << PORTB2);
+      PORTB |= (1 << PORTB3);
   }
+
+  void stopMotor(void)
+  {
+      PORTB &= ~(1 << PORTB2);
+      PORTB &= ~(1 << PORTB3);
+  }
+/* -------------- Potentiometer Adjustment ---------------- */
+  void changeDutyCycle(unsigned int adcValue){
+
+        if (adcValue > 524)
+        {
+            setMotorClockwise();
+            OCR3A = ((adcValue - 524) * 1023UL) / (1023 - 524);
+        }
+        else if (adcValue < 500)
+        {
+            setMotorCounterClockwise();
+            OCR3A = ((500 - adcValue) * 1023UL) / 500;
+        }
+        else
+        {
+            stopMotor();
+            OCR3A = 0;
+        }
+    
 }

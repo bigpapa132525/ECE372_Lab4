@@ -6,15 +6,10 @@
 #define PWM_H
 
 void initPWMTimer3();
-void initPWMTimer4();
-void changeDutyCycle(int adcValue);
-int readADC();
+void changeDutyCycle(unsigned int adcValue);
 void setMotorClockwise();
 void setMotorCounterClockwise();
-int AnalogToDigital();
 void stopMotor();
-void AnalyzeADC();
-void initMotorPins();
 void initMotorDirectionPins();
 
 #endif
